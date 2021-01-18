@@ -6,6 +6,7 @@ services:
       context: elasticsearch/
       args:
         ELK_VERSION: $ELK_VERSION
+    restart: always
     volumes:
       - type: bind
         source: ./elasticsearch/config/elasticsearch.yml
@@ -18,8 +19,8 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: changeme
+      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+      # ELASTIC_PASSWORD: changeme
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
@@ -31,6 +32,7 @@ services:
       context: logstash/
       args:
         ELK_VERSION: $ELK_VERSION
+    restart: always
     volumes:
       - type: bind
         source: ./logstash/config/logstash.yml
@@ -39,7 +41,9 @@ services:
       - type: bind
         source: ./logstash/pipeline
         target: /usr/share/logstash/pipeline
-        read_only: true
+      - type: bind
+        source: ./logstash/opt
+        target: /opt
     ports:
       - "5044:5044"
       - "5000:5000/tcp"
@@ -57,6 +61,7 @@ services:
       context: kibana/
       args:
         ELK_VERSION: $ELK_VERSION
+    restart: always
     volumes:
       - type: bind
         source: ./kibana/config/kibana.yml
